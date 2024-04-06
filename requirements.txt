@@ -23,3 +23,5 @@ Image
 CORS
 Flask_cors
 matplotlib
+onnxruntime
+resize_image
