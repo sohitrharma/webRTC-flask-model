@@ -18,3 +18,8 @@ six==1.16.0
 Werkzeug==3.0.0
 wsproto==1.2.0
 zipp==3.17.0
+guinicorn
+Image
+CORS
+Flask_cors
+matplotlib
