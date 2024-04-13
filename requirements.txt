@@ -25,3 +25,4 @@ Flask_cors
 matplotlib
 onnxruntime
 resize_image
+logging
