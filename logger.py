@@ -13,7 +13,14 @@ def setup_logger(name):
     handler.setFormatter(formatter)
 
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+
+    # Get logging level from environment variable
+    level = os.getenv('LOG_LEVEL', 'INFO').upper()
+    numeric_level = getattr(logging, level, None)
+    if not isinstance(numeric_level, int):
+        raise ValueError(f'Invalid log level: {level}')
+
+    logger.setLevel(numeric_level)
     logger.addHandler(handler)
 
     return logger
