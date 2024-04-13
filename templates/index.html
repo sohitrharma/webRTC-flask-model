@@ -82,7 +82,7 @@
         const remoteVideo = document.getElementById('remoteVideo');
         const hangupButton = document.getElementById('hangUpButton');
         
-        const socket = io.connect('http://127.0.0.1:5000');
+        const socket = io.connect('0.0.0.0:10000');
 
         // Setting constraints for 360p resolution
         const constraints = {
