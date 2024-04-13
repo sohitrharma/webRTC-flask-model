@@ -11,15 +11,16 @@
 
 <body>
     <h1>Video Conferencing</h1>
-    <p>Please provide permission when prompted to access your camera and microphone. This will ensure the best video conferencing experience.</p>
+    <p>Please provide permission when prompted to access your camera and microphone. This will ensure the best video
+        conferencing experience.</p>
 
     <div class="controls">
-        <button id="webCamButton" onclick="init();">Start Webcam</button>
-        <button id="callButton" onclick="initiateConnection();">Create Call</button>
+        <button id="webCamButton">Start Webcam</button>
+        <button id="callButton">Create Call</button>
         <label for="callInput">Enter Call ID to join an existing call or create a new call to get an ID:</label>
         <input type="text" id="callInput">
-        <button id="answerButton" onclick="answerClick()">Answer</button>
-        <button id="hangUpButton" onclick="hangUpClick()">Hangup</button>
+        <button id="answerButton">Answer</button>
+        <button id="hangUpButton">Hangup</button>
     </div>
 
     <div class="container">
@@ -36,16 +37,16 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js';
         import {
-        addDoc,
-        collection,
-        doc,
-        getDoc,
-        getFirestore,
-        onSnapshot,
-        setDoc,
-        updateDoc
+            addDoc,
+            collection,
+            doc,
+            getDoc,
+            getFirestore,
+            onSnapshot,
+            setDoc,
+            updateDoc
         } from 'https://www.gstatic.com/firebasejs/9.4.0/firebase-firestore.js';
-    
+
         const firebaseConfig = {
             apiKey: "AIzaSyD_F2QU9kOyUxt83o7ntZiWNVkyFdJDjbM",
             authDomain: "webrtc-video-conferencin-a2abe.firebaseapp.com",
@@ -62,27 +63,35 @@
         const servers = {
             iceServers: [
                 {
-                urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'],
+                    urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'],
                 },
             ],
             iceCandidatePoolSize: 10,
             sctp: true,
         };
 
-        // Global State
         let peerConnection = new RTCPeerConnection(servers);
         let localStream = null;
         let remoteStream = null;
-        const videoElement = document.getElementById('video');
-        const videoDisplayElement = document.getElementById('videoDisplay');
-        const webCamButton = document.getElementById('webCamButton');
-        const callButton = document.getElementById('callButton');
-        const callInput = document.getElementById('callInput');
-        const answerButton = document.getElementById('answerButton');
-        const remoteVideo = document.getElementById('remoteVideo');
-        const hangupButton = document.getElementById('hangUpButton');
-        
-        const socket = io.connect('https://webrtc-flask-model.onrender.com');
+
+        const socket = io.connect('http://127.0.0.1:10000');
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const webCamButton = document.getElementById('webCamButton');
+            const callButton = document.getElementById('callButton');
+            const answerButton = document.getElementById('answerButton');
+            const hangUpButton = document.getElementById('hangUpButton');
+
+            if (webCamButton) webCamButton.addEventListener("click", init);
+            if (callButton) callButton.addEventListener("click", initiateConnection);
+            if (answerButton) answerButton.addEventListener("click", answerClick);
+            if (hangUpButton) hangUpButton.addEventListener("click", hangUpClick);
+
+            if (callButton && answerButton) {
+                callButton.addEventListener('click', monitorCallEnd);
+                answerButton.addEventListener('click', monitorCallEnd);
+            }
+        });
 
         // Setting constraints for 360p resolution
         const constraints = {
@@ -116,7 +125,7 @@
             onSnapshot(callDoc, (snapshot) => {
                 const data = snapshot.data();
                 if (data?.callEnded) {
-                hangupCall();
+                    hangupCall();
                 }
             });
         }
@@ -142,10 +151,10 @@
             await updateDoc(callDoc, { answer });
             onSnapshot(collection(callDoc, 'offerCandidates'), (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added') {
-                    let data = change.doc.data();
-                    peerConnection.addIceCandidate(new RTCIceCandidate(data));
-                }
+                    if (change.type === 'added') {
+                        let data = change.doc.data();
+                        peerConnection.addIceCandidate(new RTCIceCandidate(data));
+                    }
                 });
             });
         }
@@ -188,7 +197,7 @@
 
                 peerConnection.onicecandidate = event => {
                     if (event.candidate) {
-                        socket.emit('message', {'ice': event.candidate});
+                        socket.emit('message', { 'ice': event.candidate });
                     }
                 };
             } catch (e) {
@@ -217,16 +226,16 @@
             onSnapshot(doc(firestore, 'calls', callDoc.id), (snapshot) => {
                 const data = snapshot.data();
                 if (!peerConnection.currentRemoteDescription && data?.answer) {
-                const answerDescription = new RTCSessionDescription(data.answer);
-                peerConnection.setRemoteDescription(answerDescription);
+                    const answerDescription = new RTCSessionDescription(data.answer);
+                    peerConnection.setRemoteDescription(answerDescription);
                 }
             });
             onSnapshot(collection(doc(firestore, 'calls', callDoc.id), 'answerCandidates'), (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added') {
-                    const candidate = new RTCIceCandidate(change.doc.data());
-                    peerConnection.addIceCandidate(candidate);
-                }
+                    if (change.type === 'added') {
+                        const candidate = new RTCIceCandidate(change.doc.data());
+                        peerConnection.addIceCandidate(candidate);
+                    }
                 });
             });
 
@@ -248,11 +257,11 @@
             }, 50);  // Sending frames every 10ms. Adjust as needed.
         }
 
-        socket.on('frame_response', function(data) {
+        socket.on('frame_response', function (data) {
             remoteVideo.src = data.image;
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             document.querySelector("[onclick='init();']").addEventListener("click", init);
             document.querySelector("[onclick='initiateConnection();']").addEventListener("click", initiateConnection);
             document.getElementById("answerButton").addEventListener("click", answerClick);

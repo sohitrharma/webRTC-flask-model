@@ -58,4 +58,4 @@ def handle_frame(data):
         emit('error', {'error': 'Error processing image'})
 
 if __name__ == '__main__':
-    socketio.run(app, host="0.0.0.0", debug=True)
+    socketio.run(app, host="0.0.0.0",port="10000", debug=True)
