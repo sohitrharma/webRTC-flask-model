@@ -13,7 +13,7 @@ logger = setup_logger(__name__)
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
-model = Model('./models/super-resolution-10.onnx')
+model = Model('./models/24_ep_optimized.onnx')
 
 @app.route('/<path:path>')
 def send_js(path):

@@ -24,7 +24,7 @@ class Model:
     def preprocess(self, inputImage):
         """Preprocess the image for ONNX inference."""
         try:
-            img = resizeimage.resize_cover(inputImage, [224, 224], validate=False)
+            img = resizeimage.resize_cover(inputImage, [480, 240], validate=False)
             img_ycbcr = img.convert('YCbCr')
             img_y, img_cb, img_cr = img_ycbcr.split()
             img_ndarray = np.asarray(img_y)
@@ -56,7 +56,7 @@ class Model:
                     img_cb.resize(img_out_y.size, Image.BICUBIC),
                     img_cr.resize(img_out_y.size, Image.BICUBIC),
                 ]).convert("RGB")
-            return final_img
+            return img_out_y
         except Exception as e:
             logger.error(f"Postprocessing failed: {e}")
             raise
@@ -67,6 +67,7 @@ class Model:
             img_cb, img_cr, processed_image = self.preprocess(inputImage)
             predictions = self.predict(processed_image)
             logger.debug(f'Input shape: {processed_image.shape}, Output shape: {predictions.shape}')
+            print(f'Input shape: {processed_image.shape}, Output shape: {predictions.shape}')
             return self.postprocess(predictions, img_cb, img_cr)
         except Exception as e:
             logger.error(f"Image processing failed: {e}")

@@ -74,7 +74,7 @@
         let localStream = null;
         let remoteStream = null;
 
-        const socket = io.connect('https://webrtc-flask-model.onrender.com');
+        const socket = io.connect('http://127.0.0.1:5000');
 
         document.addEventListener('DOMContentLoaded', function () {
             const webCamButton = document.getElementById('webCamButton');
