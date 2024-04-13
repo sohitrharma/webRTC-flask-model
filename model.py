@@ -2,15 +2,9 @@ import numpy as np
 import onnxruntime as ort
 from PIL import Image
 from resizeimage import resizeimage
+from logger import setup_logger
 
-import logging
-from logging.handlers import RotatingFileHandler
-
-# Configure logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler = RotatingFileHandler('logs/app.log', maxBytes=10000, backupCount=3)
-logger = logging.getLogger(__name__)
-logger.addHandler(handler)
+logger = setup_logger(__name__)
 
 class Model:
     def __init__(self, onnx_path):

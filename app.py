@@ -5,10 +5,10 @@ import base64
 from io import BytesIO
 from PIL import Image
 from model import Model
-import logging
+from logger import setup_logger
 
 # Configure basic logging
-logging.basicConfig(level=logging.INFO)
+logger = setup_logger(__name__)
 
 app = Flask(__name__)
 CORS(app)
@@ -30,7 +30,7 @@ def decode_image(base64_data):
         image = Image.open(BytesIO(data))
         return image
     except Exception as e:
-        logging.error(f"Failed to decode image: {e}")
+        logger.error(f"Failed to decode image: {e}")
         return None
 
 def image_to_base64(img):
@@ -39,7 +39,7 @@ def image_to_base64(img):
         img.save(buffered, format="PNG")
         return "data:image/png;base64," + base64.b64encode(buffered.getvalue()).decode()
     except Exception as e:
-        logging.error(f"Failed to convert image to base64: {e}")
+        logger.error(f"Failed to convert image to base64: {e}")
         return None
 
 @socketio.on('send_frame')
@@ -54,7 +54,7 @@ def handle_frame(data):
         else:
             emit('error', {'error': 'Failed to decode image'})
     except Exception as e:
-        logging.error(f"Error processing frame: {e}")
+        logger.error(f"Error processing frame: {e}")
         emit('error', {'error': 'Error processing image'})
 
 if __name__ == '__main__':
