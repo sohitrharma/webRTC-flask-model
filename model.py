@@ -39,14 +39,14 @@ class Model:
                 img_out_y,
                 img_cb.resize(img_out_y.size, Image.BICUBIC),
                 img_cr.resize(img_out_y.size, Image.BICUBIC),
-            ]).convert("RGB")
+            ]).convert("L")
         return final_img
 
     def process_image(self, inputImage):
         """Entry method to process an image."""
         img_cb, img_cr, processed_image = self.preprocess(inputImage)
         predictions = self.predict(processed_image)
-        print('input:', processed_image.shape, '  output:', predictions.shape)
+        print('input:', processed_image.shape, '  output:', predictions.shape,flush=True)
         return self.postprocess(predictions, img_cb, img_cr)
 
 # Example Usage:
